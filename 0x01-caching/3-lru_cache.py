@@ -1,34 +1,47 @@
 #!/usr/bin/python3
+""" LRU Caching """
 from base_caching import BaseCaching
 
+
 class LRUCache(BaseCaching):
+    """ Class that inherits from BaseCaching and is a caching system """
     def __init__(self):
-        super().__init__()  # Call the parent class's __init__() method
-        self.access_history = []  # To track the access history of cache items
+        super().__init__()
+        self.head, self.tail = '-', '='
+        self.next, self.prev = {}, {}
+        self.handle(self.head, self.tail)
+
+    def handle(self, head, tail):
+        """ LRU algorithm, handle elements """
+        self.next[head], self.prev[tail] = tail, head
+
+    def _remove(self, key):
+        """ LRU algorithm, remove element """
+        self.handle(self.prev[key], self.next[key])
+        del self.prev[key], self.next[key], self.cache_data[key]
+
+    def _add(self, key, item):
+        """ LRU algorithm, add element """
+        self.cache_data[key] = item
+        self.handle(self.prev[self.tail], key)
+        self.handle(key, self.tail)
+        if len(self.cache_data) > BaseCaching.MAX_ITEMS:
+            print("DISCARD: {}".format(self.next[self.head]))
+            self._remove(self.next[self.head])
 
     def put(self, key, item):
-        if key is None or item is None:
-            return
-
-        if key in self.cache_data:
-            self.access_history.remove(key)  # Remove the key from access history
-
-        if len(self.cache_data) >= self.MAX_ITEMS:
-            # Find the least recently used item (LRU)
-            lru_key = self.access_history[0]
-            print("DISCARD:", lru_key)
-
-            del self.cache_data[lru_key]  # Remove the LRU item from cache
-            self.access_history.pop(0)  # Remove the LRU key from access history
-
-        self.cache_data[key] = item
-        self.access_history.append(key)  # Add the key to the end of access history
+        """ Assign to the dictionary """
+        if key and item:
+            if key in self.cache_data:
+                self._remove(key)
+            self._add(key, item)
 
     def get(self, key):
-        if key is None or key not in self.cache_data:
+        """ Return the value linked """
+        if key is None or self.cache_data.get(key) is None:
             return None
-
-        self.access_history.remove(key)  # Remove the key from access history
-        self.access_history.append(key)  # Add the key to the end of access history
-
-        return self.cache_data[key]
+        if key in self.cache_data:
+            value = self.cache_data[key]
+            self._remove(key)
+            self._add(key, value)
+            return value
