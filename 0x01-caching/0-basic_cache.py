@@ -1,19 +1,18 @@
-
 #!/usr/bin/python3
 """  Basic dictionary """
 from base_caching import BaseCaching
 
- """ Class that inherits from BaseCaching and is a caching system
-        This caching system doesn’t have limit """
+
 class BasicCache(BaseCaching):
+    """ Class that inherits from BaseCaching and is a caching system
+        This caching system doesn’t have limit """
     def put(self, key, item):
-        """assign to the dictionary"""
-        if key is None or item is None:
-            return
-        self.cache_data[key] = item
+        """ Assign to the dictionary """
+        if key and item:
+            self.cache_data[key] = item
 
     def get(self, key):
-        """returnt a value linked"""
-        if key is None or key not in self.cache_data:
+        """ Return the value linked """
+        if key is None or self.cache_data.get(key) is None:
             return None
-        return self.cache_data[key]
+        return self.cache_data.get(key)
